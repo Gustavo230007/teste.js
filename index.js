@@ -16,7 +16,7 @@ async function teste() {
 
    console.log("nome do produto", titulo)
 
-   console.log("preço do produto", preco)
+   console.log("preço do produto", preco) // retornei no terminal e está funcionando.
 
    console.log("imagem do produto", img)
 
