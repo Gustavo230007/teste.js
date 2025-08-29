@@ -61,6 +61,10 @@ try {
 
     console.log("tudo certo pode continuar ")
 
+        console.log("tudo certo pode continuar ")
+
+            console.log("tudo certo pode continuar ")
+
 } catch {
     console.error("url errada")
 }
