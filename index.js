@@ -5,22 +5,59 @@ const port = 3000 // porta que o programa vai ouvir
 
 require("chromedriver")
 
-
-async function teste() {
-
-
-    
-    let driver = await new Builder().forBrowser("chrome").build();
-
-    const url = await driver.get("https://www.amazon.com.br/PUMA-GOLF-masculino-Fusion-azul-marinho/dp/B0BJH1HL26/ref=sr_1_1?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3VEQOM6R3W8TY&dib=eyJ2IjoiMSJ9.2w63ZL5OKy3RDxch6o0QK5W9rxSLCfRHnAQKE2xhMAQdP0IlHCCymhq-3fFMNO-d0LJAWmPNOpcnQ-6sECOhJqJOCfHhPuqhbdB-BuEBOqtC7Dh_3Dex5XHmi1KsFLfTGaDDj-jE6V0FBNa3YTy1uuzSgwjDEQj4lrijKdg8N9blK7Q_KJEAvnoVHSVUkyL2zMUmoaz7S48PGA9x1TxHMDDa9njrye-D8pedSj4TzIxCYVONFjOM5dpdb-M-oBKexHhpQNEYmdOxgnRNcIdWlZNHjzDLmGpeK4LHj-EC8ZA.srFEmc0GQU15kT67SmdaG34caVtixty4dBBiQ6VGiZY&dib_tag=se&keywords=puma+golf+fusion+grip+extra+largo+azul+marinho&qid=1755519914&sprefix=puma+golf+fusion+grip+extra+largo+azul+marinho%2Caps%2C193&sr=8-1&ufe=app_do%3Aamzn1.fos.25548f35-0de7-44b3-b28e-0f56f3f96147")
-
-
+async function scrapeAmazon(driver, url) {
+    await driver.get(url);
 
     let titulo = await driver.findElement(By.id("title")).getText();
-
     let preco = await driver.findElement(By.css(".a-price")).getText();
-
     let img = await driver.findElement(By.id("landingImage")).getAttribute("src");
+    let description = await driver.findElement(By.css("#feature-bullets")).getText();
+    let review = await driver.findElement(By.css(".a-size-base.a-nowrap")).getText();
+
+    return { titulo, preco, img, description, review };
+}
+
+async function scrapeMercado_livre(driver, url) {
+    let titulo = await driver.findElement(By.css("h1")).getText();
+    let preco = await dfriver.findElement(By.css("src__BestPrice-sc-1jvw02c-5"))
+    let img = await driver.findElement(By.css("img").getAttribute("src"));
+    let description = await driver.findElement(By.css(".product-description")).getText(); 
+    let review = "sem review no produto ainda."
+
+
+    return {titulo, preco, img, description, review}
+
+    
+}
+
+
+
+async function scrp_americanas(driver, url) {
+    await driver.get(url)
+
+    let titulo = await driver.findElement(By.css("h1")).getText();
+    let preco = await driver.findElement(By.css(".src__BestPrice-sc-1jvw02c-5")).getText();
+    let img = await driver.findElement(By.css("img")).getAttribute("src");
+    let description = await driver.findElement(By.css(".product-description")).getText();
+    let review = "Sem review implementado ainda";
+
+    return { titulo, preco, img, description, review };
+
+
+}
+
+
+/**
+ * @param {string} storeUrl 
+ */
+async function teste(storeUrl) {
+
+
+    const url = await driver.get(storeUrl)
+
+
+
+   
 
 
 
@@ -28,39 +65,50 @@ async function teste() {
         titulo: titulo,
         preco: preco,
         img: img,
+        description: description,
+        review:review,
 
     }
 
 
-    console.log(obj)
+    async function scrp_lojas(url) {
+        let driver = await new Builder().forBrowser("chrome").build();
 
+         try {
+        if (url.includes("amazon.com")) {
+            return await scrapeAmazon(driver, url);
+        } else if (url.includes("americanas.com")) {
+            return await scrp_americanas(driver, url);
+        } else {
+            throw new Error("Loja não suportada ainda!");
+        }
+    } finally {
+        driver.quit();
+    }
+}
+
+        
+   
      
-    driver.quit();
 
 
 }
 
-teste();
-
 app.get("/products", async(req, res) => {
     const url = req.query.url;
-    res.json(obj)
+    const response = await teste(url)
+    res.json(response)
 
 })
+
+ try {
+        const response = await scrapeLoja(url);
+        res.json(response);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    };
 
 
 app.listen(port, () => {
     console.log(`o servidor ta na porta ${port}`)
 })
-
-try {
-    urlIsperada = "https://www.amazon.com.br/PUMA-GOLF-masculino-Fusion-azul-marinho/dp/B0BJH1HL26/ref=sr_1_1?__mk_pt_BR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=3VEQOM6R3W8TY&dib=eyJ2IjoiMSJ9.2w63ZL5OKy3RDxch6o0QK5W9rxSLCfRHnAQKE2xhMAQdP0IlHCCymhq-3fFMNO-d0LJAWmPNOpcnQ-6sECOhJqJOCfHhPuqhbdB-BuEBOqtC7Dh_3Dex5XHmi1KsFLfTGaDDj-jE6V0FBNa3YTy1uuzSgwjDEQj4lrijKdg8N9blK7Q_KJEAvnoVHSVUkyL2zMUmoaz7S48PGA9x1TxHMDDa9njrye-D8pedSj4TzIxCYVONFjOM5dpdb-M-oBKexHhpQNEYmdOxgnRNcIdWlZNHjzDLmGpeK4LHj-EC8ZA.srFEmc0GQU15kT67SmdaG34caVtixty4dBBiQ6VGiZY&dib_tag=se&keywords=puma+golf+fusion+grip+extra+largo+azul+marinho&qid=1755519914&sprefix=puma+golf+fusion+grip+extra+largo+azul+marinho%2Caps%2C193&sr=8-1&ufe=app_do%3Aamzn1.fos.25548f35-0de7-44b3-b28e-0f56f3f96147"
-    if (url !== urlIsperada) {
-        throw new error ("url diferente da esperada")
-    }
-
-    console.log("tudo certo pode continuar ")
-
-} catch {
-    console.error("url errada")
-}
