@@ -5,6 +5,7 @@ const port = 3000 // porta que o programa vai ouvir
 
 require("chromedriver")
 
+
 async function scrapeAmazon(driver, url) {
     await driver.get(url);
 
@@ -55,12 +56,6 @@ async function teste(storeUrl) {
 
     const url = await driver.get(storeUrl)
 
-
-
-   
-
-
-
     const obj = {
         titulo: titulo,
         preco: preco,
@@ -93,6 +88,10 @@ async function teste(storeUrl) {
 
 
 }
+
+///products/?url=link loja:
+
+
 
 app.get("/products", async(req, res) => {
     const url = req.query.url;
